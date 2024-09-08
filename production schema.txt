@@ -1,0 +1,722 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgres"
+  url      = env("PRISMA_DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Mill {  =>jobviews missing in mill
+  id                      Int              @id @default(autoincrement())
+  accommodationImages     String[]
+  accommodation           String?
+  address                 String
+  area                    String
+  city                    String
+  state                   String
+  industryType            String
+  latitude                Float?           @default(0)
+  longitude               Float?           @default(0)
+  millImage               String?
+  millImages              String[]
+  millName                String
+  pinCode                 Int?             @default(0)
+  isBanned                Boolean          @default(false)
+  bannedOn                DateTime?
+  createdAt               DateTime?        @default(now())
+  updatedAt               DateTime?        @updatedAt
+  millOwner               MillOwner        @relation(fields: [millOwnerId], references: [id], onDelete: Cascade)
+  millOwnerId             Int
+  jobs                    Job[]
+  applications            JobApplication[]
+  workers                 Worker[]
+  authorised              Boolean?         @default(false)
+  accommodationEnable     Boolean?         @default(false)
+  messEnable              Boolean?         @default(false)
+  medicalEnable           Boolean?         @default(false)
+  transportationEnable    Boolean?         @default(false)
+  accommodationType       String?
+  primaryMill             Boolean          @default(true)
+  extension               String           @default("")
+  extStatus               Int              @default(0)
+  millHr                  String?
+  hrNumber                String?
+  messType                String?
+  medicalType             String?
+  transportationType      String?
+  video                   String?
+  documentType            String?
+  documentNumber          String?
+  varified                Int              @default(0)
+  document                String?
+  additionalDetails       String?
+  website                 String?
+  accommodationDeduction  Int?
+  messDeduction           Int?
+  medicalDeduction        Int?
+  transportationDeduction Int?
+  gst                     String?
+  payRelease              Int              @default(1)
+  invoice                 Invoice[]
+  Amenities               Amenities[]
+  CallDetails             CallDetails[]
+  HRFeedBack              HRFeedBack[]
+}
+
+model Job {
+  id                   Int                @id @default(autoincrement())
+  addedOn              DateTime?          @default(now())
+  delisted             Boolean
+  duringTraining       Float              @default(0)
+  accommodation        Boolean?           @default(false)
+  expReq               Float              @default(0)
+  jobTitle             String
+  jobCatagory          String?
+  mealType             String
+  genderPreference     Int?               @default(0)
+  numberOfPeopleInRoom Int                @default(0)
+  overtime             Float              @default(0)
+  promoted             Float              @default(0)
+  promoteScore         Int?               @default(0)
+  peopleReq            Int
+  salaryPerShift       Float
+  salaryPerMonth       Float              @default(0)
+  maxSalary            Float?
+  maxSalaryPerMonth    Float?
+  skillReq             String?
+  skills               String[]
+  typeOfLabour         Int?               @default(2)
+  workingHours         Int                @default(8)
+  workType             Int                @default(1)
+  incentive            String?
+  isBanned             Boolean            @default(false)
+  bannedOn             DateTime?
+  createdAt            DateTime?          @default(now())
+  updatedAt            DateTime?          @updatedAt
+  mill                 Mill               @relation(fields: [millId], references: [id], onDelete: Cascade)
+  millId               Int
+  savedLabours         SavedJob[]
+  verified             Boolean            @default(false)
+  Tags                 String[]
+  applications         JobApplication[]
+  pf                   Int?
+  esi                  Int?
+  overtimeSalary       Float?
+  confirmation         Boolean            @default(false)
+  Amenities            Amenities[]
+  CallDetails          CallDetails[]
+  HRFeedBack           HRFeedBack[]
+  jobQuestionnaire     jobQuestionnaire[]
+}
+
+model Tags {
+  id        Int      @id @default(autoincrement())
+  tag       String   @unique
+  status    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Uninstalls {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Amenities {
+  id                      Int      @id @default(autoincrement())
+  mill                    Mill     @relation(fields: [millId], references: [id], onDelete: Cascade)
+  millId                  Int
+  job                     Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobId                   Int
+  accommodation           Boolean? @default(false)
+  accommodationType       Int?
+  accommodationDeduction  Int?     @default(0)
+  medical                 Boolean? @default(false)
+  medicalType             Int?
+  medicalDeduction        Int?     @default(0)
+  mess                    Boolean? @default(false)
+  messType                Int?
+  messDeduction           Int?     @default(0)
+  transportation          Boolean? @default(false)
+  transportationType      Int?
+  transportationDeduction Int?     @default(0)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
+
+model CallDetails {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  millId          Int
+  mill            Mill     @relation(fields: [millId], references: [id], onDelete: Cascade)
+  jobId           Int
+  job             Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  isCallConnected Boolean
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model HRFeedBackQuestionL1 {
+  id          Int                    @id @default(autoincrement())
+  question    String
+  l2_question HRFeedBackQuestionL2[]
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  HRFeedBack  HRFeedBack[]
+}
+
+model HRFeedBackQuestionL2 {
+  id             Int                  @id @default(autoincrement())
+  question       String
+  l1_question    HRFeedBackQuestionL1 @relation(fields: [l1_question_id], references: [id], onDelete: Cascade)
+  l1_question_id Int
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  HRFeedBack     HRFeedBack[]
+}
+
+model HRFeedBack {
+  id             Int                  @id @default(autoincrement())
+  mill           Mill                 @relation(fields: [millId], references: [id])
+  millId         Int
+  l1_questions   HRFeedBackQuestionL1 @relation(fields: [l1_question_id], references: [id])
+  l1_question_id Int
+  l2_question    HRFeedBackQuestionL2 @relation(fields: [l2_question_id], references: [id])
+  l2_question_id Int
+  user           User                 @relation(fields: [userId], references: [id])
+  userId         Int
+  job            Job                  @relation(fields: [jobId], references: [id])
+  jobId          Int
+  remarks        String?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+}
+
+model jobQuestionnaire {
+  id                Int      @id @default(autoincrement())
+  workedAs          Boolean  @default(false)
+  workExperience    String
+  skills            String[]
+  canWorkOnLocation Boolean
+  job               Job      @relation(fields: [jobId], references: [id])
+  jobId             Int
+  user              User     @relation(fields: [userId], references: [id])
+  userId            Int
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model SystemTags {
+  id        Int      @id @default(autoincrement())
+  label     String
+  dependent String
+  operator  String
+  tags      String[]
+}
+
+model Dependents {
+  id    Int    @id @default(autoincrement())
+  label String
+}
+
+model Labour {
+  id                    Int                     @id @default(autoincrement())
+  expLevel              Float                   @default(0)
+  preferredIndustryType String?
+  preferredIndustries   String[]
+  skills                String[]
+  lacality              String?
+  userInfo              User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                Int                     @unique
+  middleman             Middleman?              @relation(fields: [middlemanId], references: [id], onDelete: Cascade)
+  middlemanId           Int?
+  jobApplications       JobApplication[]
+  complaintsPosted      ComplaintForMillOwner[]
+  pastMiddleman         PastMiddlemanLabour[]
+}
+
+model Middleman {
+  id                   Int                     @id @default(autoincrement())
+  states               String[]
+  initialNoOfLabourers Int                     @default(0)
+  preferredIndustries  String[]
+  lacality             String?
+  userInfo             User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId               Int                     @unique
+  middlemanLabourers   Labour[]
+  complaintsPosted     ComplaintForMillOwner[]
+  applications         JobApplication[]
+  pastLabourers        PastMiddlemanLabour[]
+}
+
+model PastMiddlemanLabour {
+  id          Int       @id @default(autoincrement())
+  labour      Labour    @relation(fields: [labourId], references: [id], onDelete: Cascade)
+  labourId    Int
+  middleman   Middleman @relation(fields: [middlemanId], references: [id], onDelete: Cascade)
+  middlemanId Int
+}
+
+model MillOwner {
+  id            Int                     @id @default(autoincrement())
+  email         String?
+  millInfo      Mill[]
+  userInfo      User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        Int                     @unique
+  complaintsGot ComplaintForMillOwner[]
+}
+
+model JobMarkets {
+  id        Int       @id @default(autoincrement())
+  city      String
+  lat       Float
+  long      Float
+  image     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+model Worker {
+  id            Int       @id @default(autoincrement())
+  employeeCode  String?
+  department    String?
+  designation   String?
+  dateOfJoining DateTime?
+  dateOfLeaving DateTime?
+  status        Int       @default(1)
+  mill          Mill?     @relation(fields: [millId], references: [id], onDelete: Cascade)
+  millId        Int?
+  userInfo      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        Int       @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime? @updatedAt
+}
+
+model User {
+  id                     Int                @id @default(autoincrement())
+  labour                 Labour?
+  middleman              Middleman?
+  millOwner              MillOwner?
+  worker                 Worker?
+  bankDetails            ImportantDetail?
+  authentication         Auth?
+  age                    Int?               @default(25)
+  registerationCompleted Boolean            @default(false)
+  gender                 Int?               @default(0)
+  locale                 Int                @default(1)
+  imageUrl               String?
+  state                  String?
+  name                   String             @default("")
+  phone                  String?
+  qualification          String?
+  hometown               String?
+  languages              String[]
+  alternativePhone       String             @default("")
+  role                   Int                @default(0)
+  isContractor           Boolean            @default(false)
+  isGuest                Boolean            @default(false)
+  lastSearchedLocation   String             @default("")
+  lastLocationLat        Float              @default(0.0)
+  lastLocationLong       Float              @default(0.0)
+  isBanned               Boolean            @default(false)
+  bannedOn               DateTime?
+  lastActive             DateTime?
+  activeOnApp            Boolean            @default(true)
+  documentType           String?
+  documentNumber         String?
+  document               String?
+  varified               Int                @default(0)
+  createdAt              DateTime?          @default(now())
+  updatedAt              DateTime?          @updatedAt
+  referralsGiven         Referral[]         @relation("Referral given")
+  referralsTaken         Referral[]         @relation("Referral received")
+  notifications          Notification[]
+  savedJobs              SavedJob[]
+  support                Support[]
+  CallDetails            CallDetails[]
+  HRFeedBack             HRFeedBack[]
+  jobQuestionnaire       jobQuestionnaire[]
+}
+
+model ImportantDetail {
+  id                Int     @id @default(autoincrement())
+  ifscCode          String?
+  bankAccountNo     String?
+  accountHolderName String?
+  aadhaarNo         String?
+  backAadhaarPhoto  String?
+  frontAadhaarPhoto String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            Int     @unique
+}
+
+model Auth {
+  id             Int       @id @default(autoincrement())
+  fcmtoken       String
+  webToken       String?
+  deviceId       String?
+  timestampFCM   DateTime? @default(now())
+  firebaseUserId String?   @unique
+  cognitoId      String?   @unique
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         Int       @unique
+  createdAt      DateTime? @default(now())
+  updatedAt      DateTime? @updatedAt
+}
+
+model RawData {
+  id          Int      @id @default(autoincrement())
+  jobCatagory String?
+  jobTitle    String?
+  skills      String[]
+  status      Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ComplaintForMillOwner {
+  id          Int        @id @default(autoincrement())
+  dateOfIssue DateTime   @default(now())
+  issue       String
+  millOwner   MillOwner  @relation(fields: [millOwnerId], references: [id], onDelete: Cascade)
+  millOwnerId Int
+  labour      Labour?    @relation(fields: [labourId], references: [id], onDelete: Cascade)
+  labourId    Int?
+  middleman   Middleman? @relation(fields: [middlemanId], references: [id], onDelete: Cascade)
+  middlemanId Int?
+  isBanned    Boolean    @default(false)
+  bannedOn    DateTime?
+  isresolve   Boolean    @default(false)
+  resolveOn   DateTime?
+  createdAt   DateTime?  @default(now())
+  updatedAt   DateTime?  @updatedAt
+}
+
+model Logs {
+  id        Int      @id @default(autoincrement())
+  timestamp DateTime @default(now())
+  title     String
+  log       String
+  meta      Json?
+}
+
+model JobApplication {
+  id            Int        @id @default(autoincrement())
+  status        Int        @default(1)
+  jobLeftReason Int        @default(0)
+  labour        Labour     @relation(fields: [labourId], references: [id], onDelete: Cascade)
+  labourId      Int
+  job           Job        @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobId         Int
+  mill          Mill       @relation(fields: [millId], references: [id], onDelete: Cascade)
+  millId        Int
+  middleman     Middleman? @relation(fields: [middlemanId], references: [id], onDelete: Cascade)
+  middlemanId   Int?
+  source        String?    @default("")
+  isActive      Boolean    @default(true)
+  employedOn    DateTime?
+  leftOn        DateTime?
+  createdAt     DateTime?  @default(now())
+  updatedAt     DateTime?  @updatedAt
+
+  @@unique([labourId, jobId])
+}
+
+model SavedJob {
+  id        Int       @id @default(autoincrement())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  job       Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobId     Int
+  isBanned  Boolean   @default(false)
+  bannedOn  DateTime?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+model Support {
+  id         Int       @id @default(autoincrement())
+  raisedOn   DateTime? @default(now())
+  query      String
+  isResolved Int       @default(1)
+  note       String?
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+}
+
+model CompanyLogos {
+  id        Int      @id @default(autoincrement())
+  logos     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TrustedBy {
+  id        Int      @id @default(autoincrement())
+  trustedBy Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model LogoResolution {
+  id        Int      @id @default(autoincrement())
+  height    Float
+  width     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id           Int       @id @default(autoincrement())
+  body         String
+  title        String
+  timeStamp    DateTime  @default(now())
+  tokenOrTopic String?
+  user         User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       Int?
+  isRead       Boolean   @default(false)
+  isBanned     Boolean   @default(false)
+  bannedOn     DateTime?
+  createdAt    DateTime? @default(now())
+  updatedAt    DateTime? @updatedAt
+}
+
+model Templates {
+  id        Int      @id @default(autoincrement())
+  title     String
+  template  String
+  status    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Referral {
+  id         Int       @id @default(autoincrement())
+  status     Int       @default(1)
+  amount     Int       @default(1000)
+  phone      String    @default("")
+  note       String?
+  referrer   User      @relation(name: "Referral given", fields: [referrerId], references: [id], onDelete: Cascade)
+  referrerId Int
+  saathi     User      @relation(name: "Referral received", fields: [saathiId], references: [id], onDelete: Cascade)
+  saathiId   Int
+  isBanned   Boolean   @default(false)
+  bannedOn   DateTime?
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@unique([referrerId, saathiId])
+}
+
+model IndustryType {
+  id        Int        @id @default(autoincrement())
+  label     Json?
+  imageUrl  String?
+  jobTitle  JobTitle[]
+  skill     Skill[]
+  isBanned  Boolean    @default(false)
+  bannedOn  DateTime?
+  createdAt DateTime?  @default(now())
+  updatedAt DateTime?  @updatedAt
+}
+
+model JobCatagory {
+  id        Int        @id @default(autoincrement())
+  label     Json?
+  imageUrl  String?
+  jobTitle  JobTitle[]
+  skill     Skill[]
+  isBanned  Boolean    @default(false)
+  bannedOn  DateTime?
+  createdAt DateTime?  @default(now())
+  updatedAt DateTime?  @updatedAt
+}
+
+model JobTitle {
+  id             Int           @id @default(autoincrement())
+  label          Json?
+  industryType   IndustryType? @relation(fields: [industryTypeId], references: [id], onDelete: Cascade)
+  industryTypeId Int?
+  jobCatagory    JobCatagory?  @relation(fields: [jobCatagoryId], references: [id], onDelete: Cascade)
+  jobCatagoryId  Int?
+  isBanned       Boolean       @default(false)
+  bannedOn       DateTime?
+  createdAt      DateTime?     @default(now())
+  updatedAt      DateTime?     @updatedAt
+}
+
+model Skill {
+  id             Int           @id @default(autoincrement())
+  label          Json?
+  imageUrl       String?
+  industryType   IndustryType? @relation(fields: [industryTypeId], references: [id], onDelete: Cascade)
+  industryTypeId Int?
+  jobCatagory    JobCatagory?  @relation(fields: [jobCatagoryId], references: [id], onDelete: Cascade)
+  jobCatagoryId  Int?
+  isBanned       Boolean       @default(false)
+  bannedOn       DateTime?
+  createdAt      DateTime?     @default(now())
+  updatedAt      DateTime?     @updatedAt
+}
+
+model VideoCategory {
+  id        Int       @id @default(autoincrement())
+  label     String
+  createAt  DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  Videos    Videos[]
+}
+
+model Videos {
+  id            Int           @id @default(autoincrement())
+  title         String
+  description   String
+  categoryId    Int
+  videoCategory VideoCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  link          String
+  thumbnail     String
+  createdAt     DateTime?     @default(now())
+  updatedAt     DateTime?     @updatedAt
+}
+
+model Events {
+  id                 Int                  @id @default(autoincrement())
+  eventTitle         String
+  eventId            Int
+  createdAt          DateTime?            @default(now())
+  updatedAt          DateTime?            @updatedAt
+  EventNotifications EventNotifications[]
+}
+
+model EventNotifications {
+  id         Int       @id @default(autoincrement())
+  templateId Int
+  eventId    Int
+  event      Events    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+}
+
+model Audience {
+  id           Int       @id @default(autoincrement())
+  label        String
+  aud_param    String
+  aud_value    String
+  aud_operator String
+  createdAt    DateTime? @default(now())
+  updatedAt    DateTime? @updatedAt
+}
+
+model IndustryTypeVersion1 {
+  id        Int                @id @default(autoincrement())
+  label     String?
+  jobTitle  JobTitleVersion1[]
+  skill     SkillVersion1[]
+  isBanned  Boolean            @default(false)
+  bannedOn  DateTime?
+  createdAt DateTime?          @default(now())
+  updatedAt DateTime?          @updatedAt
+}
+
+model JobTitleVersion1 {
+  id             Int                  @id @default(autoincrement())
+  label          String?
+  industryType   IndustryTypeVersion1 @relation(fields: [industryTypeId], references: [id], onDelete: Cascade)
+  industryTypeId Int
+  isBanned       Boolean              @default(false)
+  bannedOn       DateTime?
+  createdAt      DateTime?            @default(now())
+  updatedAt      DateTime?            @updatedAt
+}
+
+model SkillVersion1 {
+  id             Int                  @id @default(autoincrement())
+  label          String?
+  imageUrl       String?
+  industryType   IndustryTypeVersion1 @relation(fields: [industryTypeId], references: [id], onDelete: Cascade)
+  industryTypeId Int
+  isBanned       Boolean              @default(false)
+  bannedOn       DateTime?
+  createdAt      DateTime?            @default(now())
+  updatedAt      DateTime?            @updatedAt
+}
+
+model Flyer {
+  id          Int       @id @default(autoincrement())
+  language    Int       @default(1)
+  imageUrl    String[]
+  inApp       Boolean   @default(true)
+  isBanned    Boolean   @default(false)
+  stakeholder Int       @default(0)
+  link        String?   @default("https://play.google.com/store/apps/details?id=com.aamdhane.app")
+  clickable   Boolean   @default(false)
+  bannedOn    DateTime?
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+}
+
+model Bucket {
+  id        Int       @id @default(autoincrement())
+  image     String
+  createdAt DateTime? @default(now())
+}
+
+model AppData {
+  id            Int       @id @default(autoincrement())
+  multiplier    Int
+  referralImage String    @default("")
+  createdAt     DateTime? @default(now())
+  updatedAt     DateTime? @updatedAt
+}
+
+model AppVersion {
+  id         Int       @id @default(autoincrement())
+  version    String
+  comment    String?
+  compulsory Boolean   @default(false)
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+}
+
+model RelevanceFeatureWeight {
+  id              Int       @id @default(autoincrement())
+  salary          Float     @default(0)
+  amenities       Float     @default(0)
+  postedDate      Float     @default(0)
+  acceptanceRatio Float     @default(0)
+  recommendedJob  Float     @default(0)
+  promoted        Float     @default(0)
+  createdAt       DateTime? @default(now())
+  updatedAt       DateTime? @updatedAt
+}
+
+model Invoice {
+  id            Int       @id @default(autoincrement())
+  invoice       String?
+  invoiceNumber String
+  type          Int       @default(0)
+  description   String
+  amount        Float
+  dueDate       DateTime
+  status        Int       @default(0)
+  mill          Mill      @relation(fields: [millId], references: [id], onDelete: Cascade)
+  millId        Int
+  createdAt     DateTime? @default(now())
+  updatedAt     DateTime? @updatedAt
+}
+
+model CallSupport {
+  id          Int       @id @default(autoincrement())
+  phoneNumber String
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+}
