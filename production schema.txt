@@ -10,7 +10,7 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Mill {  =>jobviews missing in mill
+model Mill {
   id                      Int              @id @default(autoincrement())
   accommodationImages     String[]
   accommodation           String?
@@ -55,6 +55,7 @@ model Mill {  =>jobviews missing in mill
   document                String?
   additionalDetails       String?
   website                 String?
+  jobViews                Int              @default(0)
   accommodationDeduction  Int?
   messDeduction           Int?
   medicalDeduction        Int?
@@ -84,10 +85,12 @@ model Job {
   promoteScore         Int?               @default(0)
   peopleReq            Int
   salaryPerShift       Float
+  inActive             Boolean?           @default(false)//added.
   salaryPerMonth       Float              @default(0)
   maxSalary            Float?
   maxSalaryPerMonth    Float?
   skillReq             String?
+  views                Int                @default(0)
   skills               String[]
   typeOfLabour         Int?               @default(2)
   workingHours         Int                @default(8)
@@ -232,7 +235,6 @@ model Labour {
   preferredIndustryType String?
   preferredIndustries   String[]
   skills                String[]
-  lacality              String?
   userInfo              User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId                Int                     @unique
   middleman             Middleman?              @relation(fields: [middlemanId], references: [id], onDelete: Cascade)
@@ -247,7 +249,6 @@ model Middleman {
   states               String[]
   initialNoOfLabourers Int                     @default(0)
   preferredIndustries  String[]
-  lacality             String?
   userInfo             User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId               Int                     @unique
   middlemanLabourers   Labour[]
@@ -474,7 +475,6 @@ model LogoResolution {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
 model Notification {
   id           Int       @id @default(autoincrement())
   body         String
@@ -497,6 +497,7 @@ model Templates {
   status    Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  Events    Events[]
 }
 
 model Referral {
@@ -588,12 +589,25 @@ model Videos {
   updatedAt     DateTime?     @updatedAt
 }
 
+model EventMap {
+  id         Int     @id @default(autoincrement())
+  eventRoute String  @unique
+  eventId    Int?
+  eventLabel String?
+
+  @@index([eventRoute])
+}
+
 model Events {
   id                 Int                  @id @default(autoincrement())
   eventTitle         String
   eventId            Int
   createdAt          DateTime?            @default(now())
   updatedAt          DateTime?            @updatedAt
+  audienceSegmentId  Int
+  AudienceSegment    AudienceSegment      @relation(fields: [audienceSegmentId], references: [id])
+  template           Templates?           @relation(fields: [templatesId], references: [id])
+  templatesId        Int?
   EventNotifications EventNotifications[]
 }
 
@@ -601,7 +615,7 @@ model EventNotifications {
   id         Int       @id @default(autoincrement())
   templateId Int
   eventId    Int
-  event      Events    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event      Events    @relation(fields: [eventId], references: [id])
   createdAt  DateTime? @default(now())
   updatedAt  DateTime? @updatedAt
 }
@@ -719,4 +733,26 @@ model CallSupport {
   phoneNumber String
   createdAt   DateTime? @default(now())
   updatedAt   DateTime? @updatedAt
+}
+
+model AudienceSegment {
+  id                     Int      @id @default(autoincrement())
+  name                   String?
+  role                   Int?     @default(-1)
+  createdBy              String?  @default("NA")
+  min_age                Int?     @default(-1)
+  max_age                Int?     @default(-1)
+  registerationCompleted Int?     @default(-1)
+  gender                 String?  @default("NA")
+  locale                 Int?
+  state                  String?  @default("NA")
+  qualification          String?  @default("NA")
+  hometown               String?  @default("NA")
+  languages              String[] @default([])
+  isContractor           Int?     @default(-1)
+  isGuest                Int?     @default(-1)
+  isBanned               Int?     @default(-1)
+  activeOnApp            Int?     @default(-1)
+  verified               Int?     @default(-1)
+  Events                 Events[]
 }
