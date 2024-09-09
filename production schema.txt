@@ -10,7 +10,7 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Mill {  =>jobviews missing in mill
+model Mill {
   id                      Int              @id @default(autoincrement())
   accommodationImages     String[]
   accommodation           String?
@@ -232,7 +232,6 @@ model Labour {
   preferredIndustryType String?
   preferredIndustries   String[]
   skills                String[]
-  lacality              String?
   userInfo              User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId                Int                     @unique
   middleman             Middleman?              @relation(fields: [middlemanId], references: [id], onDelete: Cascade)
@@ -247,7 +246,6 @@ model Middleman {
   states               String[]
   initialNoOfLabourers Int                     @default(0)
   preferredIndustries  String[]
-  lacality             String?
   userInfo             User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId               Int                     @unique
   middlemanLabourers   Labour[]
